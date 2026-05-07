@@ -42,50 +42,7 @@ The pipeline runs on a **daily schedule** via **Amazon CloudWatch Events**, maki
 
 ## 🏗 Architecture Diagram
 
-```
-┌────────────────────────────────────────────────────────────────────────────────┐
-│                              AWS Cloud                                         │
-│                                                                                │
-│   ┌─────────────┐     ┌──────────────────┐     ┌───────────────────────────┐  │
-│   │  CloudWatch │────▶│  AWS Lambda      │────▶│  Amazon S3                │  │
-│   │  (daily     │     │  (data           │     │  s3://bucket/             │  │
-│   │  schedule)  │     │   extraction)    │     │  ├── to_process/          │  │
-│   └─────────────┘     └──────────────────┘     │  └── processed/          │  │
-│                               │                └───────────┬───────────────┘  │
-│                               │ Spotify API                │ S3 Object Put     │
-│                               ▼                            │ Trigger           │
-│                        ┌─────────────┐                     ▼                  │
-│                        │  Raw JSON   │          ┌──────────────────────┐       │
-│                        │  stored in  │          │  AWS Lambda          │       │
-│                        │  S3         │          │  (data               │       │
-│                        └─────────────┘          │   transformation)    │       │
-│                                                 └──────────┬───────────┘       │
-│                                                            │                   │
-│                                                            ▼                   │
-│   ┌────────────────────────────────────────────────────────────────────────┐   │
-│   │                    Amazon S3 (transformed data)                        │   │
-│   │   s3://bucket/transformed/                                             │   │
-│   │   ├── albums/albums_data.csv                                           │   │
-│   │   ├── artists/artists_data.csv                                         │   │
-│   │   └── songs/songs_data.csv                                             │   │
-│   └───────────────────────────┬────────────────────────────────────────────┘   │
-│                               │                                                │
-│               ┌───────────────┴─────────────────────┐                         │
-│               ▼                                     ▼                         │
-│   ┌───────────────────────┐           ┌─────────────────────────┐             │
-│   │  AWS Glue Crawler     │──────────▶│  AWS Glue Data Catalog  │             │
-│   │  (infers schema from  │           │  (auto-creates tables)  │             │
-│   │   CSV files)          │           └──────────────┬──────────┘             │
-│   └───────────────────────┘                          │                        │
-│                                                      ▼                        │
-│                                          ┌───────────────────────┐            │
-│                                          │  Amazon Athena        │            │
-│                                          │  (SQL analytics)      │            │
-│                                          └───────────────────────┘            │
-└────────────────────────────────────────────────────────────────────────────────┘
-
-External:  Spotify API ──────────────────────────────────────────────────────▶
-```
+![Architecture Diagram](spotify_aws_etl_architecture.svg)
 
 ---
 
